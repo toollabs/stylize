@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head>
+<title>Stylize</title>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
+<script src="jquery-1.11.1.min.js"></script>
+<script src="jquery.form.js"></script>
+<script src="jquery.blockUI.js"></script>
+<link rel="stylesheet" href="css/stylesheets/base.css">
+<style>
+#body-content {
+	padding:1em;
+	display: flex;
+	flex-direction: column;
+}
+textarea {
+	width:98%;
+	min-height:15em;
+	font-size: 1.1em;
+	font-family: monospace;
+}
+pre {
+	max-height: 5em;
+	overflow: auto;
+	border: solid 1px #EEE;
+	font-size: 1.1em;
+	font-family: monospace;
+}
+</style>
+
+</head>
+
+<body>
+<div id="body-content">
+
+<h1>Code style tools. <a href="//www.mediawiki.org/wiki/Manual:Coding_conventions">Coding conventions made easy</a>.</h1>
+<p>
+Eeek. Tab.
+Please follow our whitespace conventions.
+Missing space.
+Whitespace error.
+Bored as well?
+Here is the solution.
+</p>
+
+<div>
+<h2>PHP stylize</h2>
+<form id="stylize-php-form" action="/stylize/jsonapi.php" method="post" enctype="multipart/form-data" target="_blank">
+<input type="hidden" name="action" value="stylizephp"/>
+<textarea name="code" placeholder="&lt;?php">
+</textarea>
+<button>Stylize PHP</button>
+<pre class="stylize-ajax-template"></pre>
+</form>
+</div>
+
+<div>
+<h2>JavaScript stylize</h2>
+<form id="stylize-js-form" action="/stylize/jsonapi.php" method="post" enctype="multipart/form-data" target="_blank">
+<input type="hidden" name="action" value="stylizejs"/>
+<textarea name="code" placeholder="javaScript( 0 === 0 );">
+</textarea>
+<button>Stylize JavaScript</button>
+<pre class="stylize-ajax-template"></pre>
+</form>
+</div>
+
+<script>
+function buildAjaxCode(action, code) {
+	return '// JavaScript API usage sample\n' +
+		'$.support.cors = true;\n' +
+		'$.post(\'//tools.wmflabs.org/stylize/jsonapi.php?action=' + action + '\', {\n' +
+		'\tcode: \'' + code.replace(/\\/g, '\\\\').replace(/\'/g, '\\\'').replace(/\n/g, '\\n').replace(/\t/g, '\\t') + '\'\n' +
+		'});'
+}
+
+var config;
+$.get('jsbeautify.cfg.json').done(function(r) {
+	config = r;
+});
+
+var $stylizePhpForm = $('#stylize-php-form');
+$stylizePhpForm.ajaxForm({
+	beforeSubmit: function() {
+		$stylizePhpForm.parent().block();
+		$stylizePhpForm.find('.stylize-ajax-template').text( buildAjaxCode( $stylizePhpForm.find('input').val(), $stylizePhpForm.find('textarea').val() ) );
+	},
+	success: function(r) {
+		$stylizePhpForm.parent().unblock();
+		$stylizePhpForm.find('textarea').val(r.stylizephp);
+	}
+});
+
+var $stylizeJSForm = $('#stylize-js-form');
+$stylizeJSForm.submit(function(e) {
+	e.preventDefault();
+
+	$stylizeJSForm.find('.stylize-ajax-template').text( buildAjaxCode( $stylizeJSForm.find('input').val(), $stylizeJSForm.find('textarea').val() ) );
+
+	var $ta = $stylizeJSForm.find('textarea');
+	$ta.val( js_beautify($ta.val(), config) );
+});
+</script>
+
+<script src="js/beautify.js"></script>
+
+<div style="color:white">
+	<div style="width:18%; border-bottom: 2px solid #587; float: left;"> </div>
+	<div style="width:18%; border-bottom: 2px solid #BDF; float: left;"> </div>
+	<div style="width:18%; border-bottom: 2px solid #666; float: left;"> </div>
+</div>
+<div style="clear:left; margin-top: 0.3em">This tool is maintained by <a href="//commons.wikimedia.org/wiki/User:Rillke">Rillke</a>. Issues and pull requsts?  <a href="https://github.com/Rillke/stylize">On GitHub</a>.</div>
+
+</div>
+</body>
+</html>
