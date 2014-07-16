@@ -5,4 +5,4 @@ webservice running on tool labs - Code style tools. Coding conventions made easy
 
 License
 -------
-See [LICENSE](../blob/master/LICENSE)
+See [MIT + GPL.v2+](LICENSE)
