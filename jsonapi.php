@@ -20,9 +20,9 @@ header('X-JSONAPI-VERSION: 0.0.0.0');
 if ( isset( $origin ) ) {
 	// Check protocol
 	$protOrigin = parse_url( $origin, PHP_URL_SCHEME );
-	if ($protOrigin != $prot) {
-		header('HTTP/1.0 403 Forbidden');
-		if ('https' == $protOrigin) {
+	if ( $protOrigin != $prot ) {
+		header( 'HTTP/1.0 403 Forbidden' );
+		if ( 'https' === $protOrigin ) {
 			echo '{"error":"Please use this service over https."}';
 		} else {
 			echo '{"error":"Please use this service over http."}';
@@ -35,24 +35,24 @@ if ( isset( $origin ) ) {
 		header('Access-Control-Allow-Origin: ' . $origin);
 		header('Access-Control-Allow-Methods: GET');
 	} else {
-		header('HTTP/1.0 403 Forbidden');
-		echo '{"error":"Accesing this tool from the origin you are attempting to connet from is not allowed."}';
+		header( 'HTTP/1.0 403 Forbidden' );
+		echo '{"error":"Accessing this tool from the origin you are attempting to connect from is not allowed."}';
 		exit;
 	}
 }
 
 // There are more clever ways to achieve this but for now, it should be sufficient
 $action = '';
-if ( array_key_exists('action', $_REQUEST) ) {
+if ( array_key_exists( 'action', $_REQUEST ) ) {
 	$action = $_REQUEST['action'];
 }
-switch ($action) {
+switch ( $action ) {
 	case 'stylizephp':
 		include_once ( 'php/stylize.php' );
 		
 		$ugly = '';
 		
-		if ( array_key_exists('code', $_REQUEST) ) {
+		if ( array_key_exists( 'code', $_REQUEST ) ) {
 			$ugly = $_REQUEST['code'];
 		}
 		if ( strlen( $ugly ) > 1024 * 1024 * 2 ) {
@@ -64,7 +64,7 @@ switch ($action) {
 	case 'stylizejs':
 		$ugly = '';
 		
-		if ( array_key_exists('code', $_REQUEST) ) {
+		if ( array_key_exists( 'code', $_REQUEST ) ) {
 			$ugly = $_REQUEST['code'];
 		}
 		if ( strlen( $ugly ) > 1024 * 1024 * 2 ) {
@@ -74,27 +74,27 @@ switch ($action) {
 
 			// http://stackoverflow.com/a/2390755
 			$descriptorspec = array(
-				0 => array('pipe', 'r'), // stdin is a pipe that the child will read from
-				1 => array('pipe', 'w'), // stdout is a pipe that the child will write to
+				0 => array( 'pipe', 'r' ), // stdin is a pipe that the child will read from
+				1 => array( 'pipe', 'w' ), // stdout is a pipe that the child will write to
 				//2 => null, // STDERR
 			);
 
-			$process = proc_open($cmd, $descriptorspec, $pipes);
+			$process = proc_open( $cmd, $descriptorspec, $pipes );
 
-			if (is_resource($process)) {
+			if ( is_resource( $process ) ) {
 				// $pipes now looks like this:
 				// 0 => writeable handle connected to child stdin
 				// 1 => readable handle connected to child stdout
 
-				fwrite($pipes[0], $ugly);
-				fclose($pipes[0]);
+				fwrite( $pipes[0], $ugly );
+				fclose( $pipes[0] );
 
-				$pretty = stream_get_contents($pipes[1]);
-				fclose($pipes[1]);
+				$pretty = stream_get_contents( $pipes[1] );
+				fclose( $pipes[1] );
 
 				// It is important that you close any pipes before calling
 				// proc_close in order to avoid a deadlock
-				$return_value = proc_close($process);
+				$return_value = proc_close( $process );
 
 
 				$res['stylizephp'] = $pretty;
@@ -104,12 +104,13 @@ switch ($action) {
 		}
 		break;
 	default:
-		header('HTTP/1.0 501 Not implemented');
+		header( 'HTTP/1.0 501 Not implemented' );
 		$res['error'] = 'Unknown action "' . $action . '". Allowed are stylizephp, stylizejs.';
 		break;
 }
-if (!isset( $res )) {
+if ( !isset( $res ) ) {
 	$res[] = array();
 }
+
 echo json_encode($res);
 ?>
